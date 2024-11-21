@@ -1,0 +1,170 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text to Columns</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"></link>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=NeueHaasGrotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+        }
+        .nav-link {
+            transition: background-color 0.3s ease;
+            font-weight: bold;
+        }
+        .nav-link:hover {
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+        .header.color-white.header-light {
+            color: #FFFFFF;
+            font-weight: 300;
+        }
+        .hero-title {
+            font-family: 'NeueHaasGroteskMedium', sans-serif;
+            color: #FFFFFF; /* Teks berwarna putih */
+            font-size: 120px;
+            line-height: 120px;
+            margin-top: -20px;
+            font-weight: bold; /* Font bold */
+            text-align: center; /* Posisi di tengah */
+        }
+        .email-link a {
+            font-family: 'NeueHaasGroteskMedium', sans-serif;
+            font-weight: 500; /* Font weight 500 */
+            color: #FFFFFF; /* Teks berwarna putih */
+            font-size: 60px;
+        }
+        .social-link h3 {
+            font-family: 'NeueHaasGroteskMedium', sans-serif;
+            font-size: 24px;
+            color: #FFFFFF; /* Teks berwarna putih */
+        }
+        .bg-custom {
+            background-color: #005cef; /* Warna latar belakang */
+        }
+        .hr-center {
+            width: 80%; /* Lebar 80% */
+            margin: 2rem auto; /* Margin atas dan bawah 2rem, auto untuk tengah */
+            border-top: 2px solid white; /* Garis putih */
+        }
+    </style>
+</head>
+<body class="bg-custom text-gray-800 flex flex-col min-h-screen">
+    <header class="flex justify-between items-center p-6">
+        <div class="text-xl font-bold text-white">KALINDO</div>
+        <nav class="space-x-8">
+            <a href="home.html" class="text-yellow-500 nav-link p-2">Home</a>
+            <a href="contact.html" class="text-white nav-link p-2">Contact</a>
+        </nav>
+    </header>
+    <hr class="hr-center">
+    <div class="flex items-center justify-center flex-grow mt-12">
+        <div class="section section-blue section-contained">
+            <div class="wrapper w-clearfix text-center">
+                <h3 class="hero-title">Say Hello.</h3>
+                <div class="email-link w-clearfix">
+                    <h3 class="header-link">
+                        <a href="mailto:kalindoscript@gmail.com" class="link contact-email">kalindoscript@gmail.com</a>
+                    </h3>
+                </div>
+                <hr class="hr-center">
+                <div class="social" style="margin-top: 2rem;">
+                    <div class="social-link is-left w-clearfix" style="margin-bottom: 2rem;">
+                        <h3 class="header-link">
+                            Whatsapp
+                            <a href="https://wa.me/6282125766511" class="ml-4" style="font-family: 'NeueHaasGroteskMedium', sans-serif;">082125766511</a>
+                        </h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer class="bg-custom text-white text-center py-4 mt-4">
+        <p>Copyright & copy; <span id="currentYear"></span> Johan Gilbeth</p>
+    </footer>
+
+    <script>
+        document.getElementById('sortButton').addEventListener('click', function() {
+            const dataInput = document.getElementById('dataInput').value;
+            const dataArray = dataInput.split('\n').filter(item => item.trim() !== '' && item.includes('Pindai pengiriman'));
+            const sortedData = dataArray.sort((a, b) => a.localeCompare(b));
+            const sortedDataTable = document.getElementById('sortedData');
+            sortedDataTable.innerHTML = '';
+            sortedData.forEach(item => {
+                const row = document.createElement('tr');
+                const cell = document.createElement('td');
+                cell.className = 'py-2 px-4 border-b text-center';
+                cell.textContent = item;
+                row.appendChild(cell);
+                sortedDataTable.appendChild(row);
+            });
+            document.getElementById('dataInput').value = '';
+        });
+
+        document.getElementById('textToColumnsButton').addEventListener('click', function() {
+            const sortedDataTable = document.getElementById('sortedData');
+            const rows = Array.from(sortedDataTable.querySelectorAll('tr'));
+            const tableHeader = document.getElementById('tableHeader');
+            tableHeader.innerHTML = '';
+
+            if (rows.length > 0) {
+                const columns = ['Result Data'];
+                columns.forEach((col, index) => {
+                    const th = document.createElement('th');
+                    th.className = 'py-2 px-4 border-b text-center';
+                    th.textContent = col;
+                    tableHeader.appendChild(th);
+                });
+
+                const uniqueData = new Set();
+                rows.forEach(row => {
+                    let rowData = row.querySelector('td').textContent.split('Pindai pengiriman')[1].split('status pemindaian pesanan')[1].trim();
+                    rowData = rowData.replace(/diperbarui ke Dipindai|Logistik|","|"/g, '').trim();
+                    uniqueData.add(rowData);
+                });
+
+                sortedDataTable.innerHTML = '';
+                uniqueData.forEach(data => {
+                    const row = document.createElement('tr');
+                    const cell = document.createElement('td');
+                    cell.className = 'py-2 px-4 border-b text-center';
+                    cell.textContent = data;
+                    row.appendChild(cell);
+                    sortedDataTable.appendChild(row);
+                });
+            }
+        });
+
+        document.getElementById('downloadButton').addEventListener('click', function() {
+            const rows = Array.from(document.querySelectorAll('#sortedData tr'));
+            const data = rows.map(row => {
+                const cells = Array.from(row.querySelectorAll('td'));
+                return cells.map(cell => cell.textContent);
+            });
+
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Sorted Data');
+
+            // Set all cells to text format
+            for (let R = ws['!ref'].split(':')[0].match(/\d+/)[0]; R <= ws['!ref'].split(':')[1].match(/\d+/)[0]; ++R) {
+                for (let C = ws['!ref'].split(':')[0].match(/[A-Z]+/)[0]; C <= ws['!ref'].split(':')[1].match(/[A-Z]+/)[0]; ++C) {
+                    const cell = ws[C + R];
+                    if (cell) {
+                        cell.z = '@';
+                    }
+                }
+            }
+
+            XLSX.writeFile(wb, 'sorted_data.xlsx');
+        });
+
+        // Set the current year in the footer
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+    </script>
+</body>
+</html>
