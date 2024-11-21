@@ -10,7 +10,7 @@
     <style>
         body {
             font-family: 'Roboto', sans-serif;
-            background-color: #005cef; /* Change background color here */
+            background-color: #005cef;
         }
         .nav-link {
             transition: background-color 0.3s ease;
@@ -24,7 +24,7 @@
             font-weight: 300;
         }
         .header.color-white.header-light .color-blue-dark {
-            color: #1E40AF; /* Tailwind's blue-900 */
+            color: #1E40AF;
         }
         @media (min-width: 2200px) {
             .section {
@@ -36,7 +36,7 @@
             filter: brightness(85%);
         }
         .btn {
-            width: 150px; /* Set a fixed width for all buttons */
+            width: 150px;
             padding: 10px 20px;
             border-radius: 25px;
             font-size: 16px;
@@ -64,6 +64,12 @@
         .btn-download:hover {
             background-color: #13c013;
         }
+        .hr-center {
+            border-top-width: 2px;
+            border-color: white;
+            width: 80%;
+            margin: 2rem auto;
+        }
     </style>
 </head>
 <body class="text-gray-800 flex flex-col min-h-screen">
@@ -74,7 +80,7 @@
             <a href="contact.html" class="text-white nav-link p-2">Contact</a>
         </nav>
     </header>
-    <hr class="border-t-2 border-white w-4/5 mx-auto">
+    <hr class="hr-center">
     <div class="flex items-center justify-center flex-grow mt-12">
         <div class="bg-white text-gray-800 rounded-lg shadow-lg p-8 max-w-3xl w-full">
             <h1 class="text-2xl font-bold text-center mb-6">Text to Columns</h1>
@@ -98,8 +104,8 @@
             </div>
         </div>
     </div>
-    <footer class="bg-[#ff 1f25] text-white text-center py-4">
-        <p>Copyright © <span id="currentYear"></span> Johan Gilbeth</p>
+    <footer class="bg-[#ff1f25] text-white text-center py-4">
+        <p>&copy; <span id="currentYear"></span> Johan Gilbeth</p>
     </footer>
 
     <script>
