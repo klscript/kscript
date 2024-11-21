@@ -1,0 +1,109 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sort A-Z Data</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"></link>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-r from-blue-500 to-purple-600 min-h-screen flex flex-col items-center justify-center">
+    <div class="bg-white p-8 rounded-lg shadow-2xl w-full max-w-2xl">
+        <h1 class="text-3xl font-bold mb-6 text-center text-gray-800">Sort Data A-Z</h1>
+        <textarea id="dataInput" class="w-full p-4 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500" rows="10" placeholder="Paste your data here..."></textarea>
+        <div class="flex space-x-4 justify-center">
+            <button id="sortButton" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition transform hover:scale-105">Sort A-Z</button>
+            <button id="textToColumnsButton" class="bg-yellow-500 text-white px-6 py-2 rounded-lg hover:bg-yellow-600 transition transform hover:scale-105">Text to Columns</button>
+            <button id="downloadButton" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition transform hover:scale-105">Download</button>
+        </div>
+        <h2 class="text-2xl font-bold mt-8 mb-4 text-center text-gray-800">Sorted Data:</h2>
+        <div class="overflow-x-auto">
+            <table class="min-w-full bg-white border border-gray-300 rounded-lg shadow-md">
+                <thead>
+                    <tr id="tableHeader" class="bg-gray-200">
+                        <th class="py-2 px-4 border-b text-left text-gray-700">Result Data</th>
+                    </tr>
+                </thead>
+                <tbody id="sortedData">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('sortButton').addEventListener('click', function() {
+            const dataInput = document.getElementById('dataInput').value;
+            const dataArray = dataInput.split('\n').filter(item => item.trim() !== '' && item.includes('Pindai pengiriman'));
+            const sortedData = dataArray.sort((a, b) => a.localeCompare(b));
+            const sortedDataTable = document.getElementById('sortedData');
+            sortedDataTable.innerHTML = '';
+            sortedData.forEach(item => {
+                const row = document.createElement('tr');
+                const cell = document.createElement('td');
+                cell.className = 'py-2 px-4 border-b text-gray-700';
+                cell.textContent = item;
+                row.appendChild(cell);
+                sortedDataTable.appendChild(row);
+            });
+            document.getElementById('dataInput').value = '';
+        });
+
+        document.getElementById('textToColumnsButton').addEventListener('click', function() {
+            const sortedDataTable = document.getElementById('sortedData');
+            const rows = Array.from(sortedDataTable.querySelectorAll('tr'));
+            const tableHeader = document.getElementById('tableHeader');
+            tableHeader.innerHTML = '';
+
+            if (rows.length > 0) {
+                const columns = ['Result Data'];
+                columns.forEach((col, index) => {
+                    const th = document.createElement('th');
+                    th.className = 'py-2 px-4 border-b text-left text-gray-700';
+                    th.textContent = col;
+                    tableHeader.appendChild(th);
+                });
+
+                rows.forEach(row => {
+                    let rowData = row.querySelector('td').textContent.split('Pindai pengiriman')[1].split('status pemindaian pesanan')[1].trim();
+                    rowData = rowData.replace(/diperbarui ke Dipindai|Logistik|","|"/g, '').trim();
+                    row.innerHTML = '';
+                    const cell = document.createElement('td');
+                    cell.className = 'py-2 px-4 border-b text-gray-700';
+                    cell.textContent = rowData;
+                    row.appendChild(cell);
+                });
+            }
+        });
+
+        document.getElementById('downloadButton').addEventListener('click', function() {
+            const rows = Array.from(document.querySelectorAll('#sortedData tr'));
+            const data = rows.map(row => {
+                const cells = Array.from(row.querySelectorAll('td'));
+                return cells.map(cell => cell.textContent);
+            });
+
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Sorted Data');
+
+            // Set all cells to text format
+            for (let R = ws['!ref'].split(':')[0].match(/\d+/)[0]; R <= ws['!ref'].split(':')[1].match(/\d+/)[0]; ++R) {
+                for (let C = ws['!ref'].split(':')[0].match(/[A-Z]+/)[0]; C <= ws['!ref'].split(':')[1].match(/[A-Z]+/)[0]; ++C) {
+                    const cell = ws[C + R];
+                    if (cell) {
+                        cell.z = '@';
+                    }
+                }
+            }
+
+            XLSX.writeFile(wb, 'sorted_data.xlsx');
+        });
+    </script>
+</body>
+</html>
