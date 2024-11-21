@@ -1,0 +1,185 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text to Columns</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"></link>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #005cef; /* Change background color here */
+        }
+        .nav-link {
+            transition: background-color 0.3s ease;
+            font-weight: bold;
+        }
+        .nav-link:hover {
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+        .header.color-white.header-light {
+            color: #FFFFFF;
+            font-weight: 300;
+        }
+        .header.color-white.header-light .color-blue-dark {
+            color: #1E40AF; /* Tailwind's blue-900 */
+        }
+        @media (min-width: 2200px) {
+            .section {
+                padding-top: 200px;
+                padding-bottom: 200px;
+            }
+        }
+        .btn-hover-dark:hover {
+            filter: brightness(85%);
+        }
+        .btn {
+            width: 150px; /* Set a fixed width for all buttons */
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        .btn-sort {
+            background-color: #0046c1;
+            color: white;
+        }
+        .btn-sort:hover {
+            background-color: #003399;
+        }
+        .btn-columns {
+            background-color: #e6c215;
+            color: white;
+        }
+        .btn-columns:hover {
+            background-color: #c4a00f;
+        }
+        .btn-download {
+            background-color: #16e516;
+            color: white;
+        }
+        .btn-download:hover {
+            background-color: #13c013;
+        }
+    </style>
+</head>
+<body class="text-gray-800 flex flex-col min-h-screen">
+    <header class="flex justify-between items-center p-6">
+        <div class="text-xl font-bold text-white">KALINDO</div>
+        <nav class="space-x-8">
+            <a href="home.html" class="text-yellow-500 nav-link p-2">Home</a>
+            <a href="contact.html" class="text-white nav-link p-2">Contact</a>
+        </nav>
+    </header>
+    <hr class="border-t-2 border-white w-4/5 mx-auto">
+    <div class="flex items-center justify-center flex-grow mt-12">
+        <div class="bg-white text-gray-800 rounded-lg shadow-lg p-8 max-w-3xl w-full">
+            <h1 class="text-2xl font-bold text-center mb-6">Text to Columns</h1>
+            <textarea id="dataInput" class="w-full p-4 mb-4 border border-gray-300 rounded" rows="10" placeholder="Paste your data here..."></textarea>
+            <div class="flex justify-center mb-6 flex-wrap">
+                <button id="sortButton" class="btn btn-sort mr-2 mb-2">Sort A-Z</button>
+                <button id="textToColumnsButton" class="btn btn-columns mr-2 mb-2">Text to Columns</button>
+                <button id="downloadButton" class="btn btn-download mb-2">Download</button>
+            </div>
+            <h2 class="text-xl font-bold text-center mb-4">Sorted Data:</h2>
+            <div class="overflow-x-auto">
+                <table class="min-w-full bg-white border border-gray-300">
+                    <thead>
+                        <tr id="tableHeader">
+                            <th class="py-2 px-4 border-b">Result Data</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sortedData">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <footer class="bg-[#ff 1f25] text-white text-center py-4">
+        <p>Copyright © <span id="currentYear"></span> Johan Gilbeth</p>
+    </footer>
+
+    <script>
+        document.getElementById('sortButton').addEventListener('click', function() {
+            const dataInput = document.getElementById('dataInput').value;
+            const dataArray = dataInput.split('\n').filter(item => item.trim() !== '' && item.includes('Pindai pengiriman'));
+            const sortedData = dataArray.sort((a, b) => a.localeCompare(b));
+            const sortedDataTable = document.getElementById('sortedData');
+            sortedDataTable.innerHTML = '';
+            sortedData.forEach(item => {
+                const row = document.createElement('tr');
+                const cell = document.createElement('td');
+                cell.className = 'py-2 px-4 border-b text-center';
+                cell.textContent = item;
+                row.appendChild(cell);
+                sortedDataTable.appendChild(row);
+            });
+            document.getElementById('dataInput').value = '';
+        });
+
+        document.getElementById('textToColumnsButton').addEventListener('click', function() {
+            const sortedDataTable = document.getElementById('sortedData');
+            const rows = Array.from(sortedDataTable.querySelectorAll('tr'));
+            const tableHeader = document.getElementById('tableHeader');
+            tableHeader.innerHTML = '';
+
+            if (rows.length > 0) {
+                const columns = ['Result Data'];
+                columns.forEach((col, index) => {
+                    const th = document.createElement('th');
+                    th.className = 'py-2 px-4 border-b text-center';
+                    th.textContent = col;
+                    tableHeader.appendChild(th);
+                });
+
+                const uniqueData = new Set();
+                rows.forEach(row => {
+                    let rowData = row.querySelector('td').textContent.split('Pindai pengiriman')[1].split('status pemindaian pesanan')[1].trim();
+                    rowData = rowData.replace(/diperbarui ke Dipindai|Logistik|","|"/g, '').trim();
+                    uniqueData.add(rowData);
+                });
+
+                sortedDataTable.innerHTML = '';
+                uniqueData.forEach(data => {
+                    const row = document.createElement('tr');
+                    const cell = document.createElement('td');
+                    cell.className = 'py-2 px-4 border-b text-center';
+                    cell.textContent = data;
+                    row.appendChild(cell);
+                    sortedDataTable.appendChild(row);
+                });
+            }
+        });
+
+        document.getElementById('downloadButton').addEventListener('click', function() {
+            const rows = Array.from(document.querySelectorAll('#sortedData tr'));
+            const data = rows.map(row => {
+                const cells = Array.from(row.querySelectorAll('td'));
+                return cells.map(cell => cell.textContent);
+            });
+
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Sorted Data');
+
+            // Set all cells to text format
+            for (let R = ws['!ref'].split(':')[0].match(/\d+/)[0]; R <= ws['!ref'].split(':')[1].match(/\d+/)[0]; ++R) {
+                for (let C = ws['!ref'].split(':')[0].match(/[A-Z]+/)[0]; C <= ws['!ref'].split(':')[1].match(/[A-Z]+/)[0]; ++C) {
+                    const cell = ws[C + R];
+                    if (cell) {
+                        cell.z = '@';
+                    }
+                }
+            }
+
+            XLSX.writeFile(wb, 'sorted_data.xlsx');
+        });
+
+        // Set the current year in the footer
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+    </script>
+</body>
+</html>
