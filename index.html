@@ -84,7 +84,7 @@
     <div class="flex items-center justify-center flex-grow mt-12">
         <div class="bg-white text-gray-800 rounded-lg shadow-lg p-8 max-w-3xl w-full">
             <h1 class="text-2xl font-bold text-center mb-6">Text to Columns</h1>
-            <textarea id="dataInput" class="w-full p-4 mb-4 border border-gray-300 rounded" rows="10" placeholder="Paste your data here..."></textarea>
+            <textarea id="dataInput" class="w-full p-4 mb-4 border border-gray-300 rounded" rows="10" placeholder="Paste your data for column C here..."></textarea>
             <div class="flex justify-center mb-6 flex-wrap">
                 <button id="sortButton" class="btn btn-sort mr-2 mb-2">Sort A-Z</button>
                 <button id="textToColumnsButton" class="btn btn-columns mr-2 mb-2">Text to Columns</button>
@@ -111,7 +111,7 @@
     <script>
         document.getElementById('sortButton').addEventListener('click', function() {
             const dataInput = document.getElementById('dataInput').value;
-            const dataArray = dataInput.split('\n').filter(item => item.trim() !== '' && item.includes('Pindai pengiriman'));
+            const dataArray = dataInput.split('\n').filter(item => item.trim() !== '' && item.includes('Nomor pelacakan'));
             const sortedData = dataArray.sort((a, b) => a.localeCompare(b));
             const sortedDataTable = document.getElementById('sortedData');
             sortedDataTable.innerHTML = '';
@@ -143,9 +143,13 @@
 
                 const uniqueData = new Set();
                 rows.forEach(row => {
-                    let rowData = row.querySelector('td').textContent.split('Pindai pengiriman')[1].split('status pemindaian pesanan')[1].trim();
-                    rowData = rowData.replace(/diperbarui ke Dipindai|Logistik|","|"/g, '').trim();
-                    uniqueData.add(rowData);
+                    let rowData = row.querySelector('td').textContent;
+                    const startIndex = rowData.indexOf(', dan status pemindaian pesanan') + ', dan status pemindaian pesanan'.length;
+                    const endIndex = rowData.indexOf('diperbarui ke Dipindai');
+                    if (startIndex !== -1 && endIndex !== -1) {
+                        rowData = rowData.substring(startIndex, endIndex).trim();
+                        uniqueData.add(rowData);
+                    }
                 });
 
                 sortedDataTable.innerHTML = '';
