@@ -70,6 +70,22 @@
             width: 80%;
             margin: 2rem auto;
         }
+        .btn-show {
+            background-color: #1E40AF;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        .btn-show:hover {
+            background-color: #1A3A8A;
+        }
+        .btn-show:disabled {
+            background-color: #A0AEC0;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body class="text-gray-800 flex flex-col min-h-screen">
@@ -90,8 +106,7 @@
                 <button id="textToColumnsButton" class="btn btn-columns mr-2 mb-2">Text to Columns</button>
                 <button id="downloadButton" class="btn btn-download mb-2">Download</button>
             </div>
-            <h2 class="text-xl font-bold text-center mb-4">Sorted Data:</h2>
-            <div class="overflow-x-auto">
+            <div class="overflow-x-auto mt-6">
                 <table class="min-w-full bg-white border border-gray-300">
                     <thead>
                         <tr id="tableHeader">
@@ -102,6 +117,10 @@
                     </tbody>
                 </table>
             </div>
+            <div class="flex justify-between mt-4">
+                <button id="showMoreButton" class="btn-show">Show 100+ Rows</button>
+                <button id="showAllButton" class="btn-show">Show All Rows</button>
+            </div>
         </div>
     </div>
     <footer class="bg-[#005cef] text-white text-center py-4">
@@ -109,21 +128,17 @@
     </footer>
 
     <script>
+        let allData = [];
+        let displayedData = [];
+        const rowsPerPage = 100;
+
         document.getElementById('sortButton').addEventListener('click', function() {
             const dataInput = document.getElementById('dataInput').value;
-            const dataArray = dataInput.split('\n').filter(item => item.trim() !== '' && item.includes('Nomor pelacakan'));
-            const sortedData = dataArray.sort((a, b) => a.localeCompare(b));
-            const sortedDataTable = document.getElementById('sortedData');
-            sortedDataTable.innerHTML = '';
-            sortedData.forEach(item => {
-                const row = document.createElement('tr');
-                const cell = document.createElement('td');
-                cell.className = 'py-2 px-4 border-b text-center';
-                cell.textContent = item;
-                row.appendChild(cell);
-                sortedDataTable.appendChild(row);
-            });
+            allData = dataInput.split('\n').filter(item => item.trim() !== '' && item.includes('Nomor pelacakan'));
+            allData.sort((a, b) => a.localeCompare(b));
+            displayData(allData.slice(0, rowsPerPage));
             document.getElementById('dataInput').value = '';
+            updateButtons();
         });
 
         document.getElementById('textToColumnsButton').addEventListener('click', function() {
@@ -141,25 +156,20 @@
                     tableHeader.appendChild(th);
                 });
 
-                const uniqueData = new Set();
+                sortedDataTable.innerHTML = '';
                 rows.forEach(row => {
                     let rowData = row.querySelector('td').textContent;
                     const startIndex = rowData.indexOf(', dan status pemindaian pesanan') + ', dan status pemindaian pesanan'.length;
                     const endIndex = rowData.indexOf('diperbarui ke Dipindai');
                     if (startIndex !== -1 && endIndex !== -1) {
                         rowData = rowData.substring(startIndex, endIndex).trim();
-                        uniqueData.add(rowData);
+                        const newRow = document.createElement('tr');
+                        const newCell = document.createElement('td');
+                        newCell.className = 'py-2 px-4 border-b text-center';
+                        newCell.textContent = rowData;
+                        newRow.appendChild(newCell);
+                        sortedDataTable.appendChild(newRow);
                     }
-                });
-
-                sortedDataTable.innerHTML = '';
-                uniqueData.forEach(data => {
-                    const row = document.createElement('tr');
-                    const cell = document.createElement('td');
-                    cell.className = 'py-2 px-4 border-b text-center';
-                    cell.textContent = data;
-                    row.appendChild(cell);
-                    sortedDataTable.appendChild(row);
                 });
             }
         });
@@ -187,6 +197,45 @@
 
             XLSX.writeFile(wb, 'sorted_data.xlsx');
         });
+
+        document.getElementById('showMoreButton').addEventListener('click', function() {
+            const currentLength = displayedData.length;
+            const newLength = Math.min(currentLength + rowsPerPage, allData.length);
+            displayData(allData.slice(0, newLength));
+            updateButtons();
+        });
+
+        document.getElementById('showAllButton').addEventListener('click', function() {
+            displayData(allData);
+            updateButtons();
+        });
+
+        function displayData(data) {
+            const sortedDataTable = document.getElementById('sortedData');
+            sortedDataTable.innerHTML = '';
+            data.forEach(item => {
+                const row = document.createElement('tr');
+                const cell = document.createElement('td');
+                cell.className = 'py-2 px-4 border-b text-center';
+                cell.textContent = item;
+                row.appendChild(cell);
+                sortedDataTable.appendChild(row);
+            });
+            displayedData = data;
+        }
+
+        function updateButtons() {
+            const showMoreButton = document.getElementById('showMoreButton');
+            const showAllButton = document.getElementById('showAllButton');
+
+            if (displayedData.length >= allData.length) {
+                showMoreButton.disabled = true;
+                showAllButton.disabled = true;
+            } else {
+                showMoreButton.disabled = false;
+                showAllButton.disabled = false;
+            }
+        }
 
         // Set the current year in the footer
         document.getElementById('currentYear').textContent = new Date().getFullYear();
