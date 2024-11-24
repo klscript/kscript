@@ -58,11 +58,11 @@
             background-color: #c41a1d;
         }
         .btn-download {
-            background-color: #16e516;
+            background-color: #4CAF50; /* Calmer green color */
             color: white;
         }
         .btn-download:hover {
-            background-color: #13c013;
+            background-color: #45A049; /* Slightly darker green */
         }
         .hr-center {
             border-top-width: 2px;
@@ -100,13 +100,13 @@
     <div class="flex items-center justify-center flex-grow mt-12">
         <div class="bg-white text-gray-800 rounded-lg shadow-lg p-8 max-w-3xl w-full">
             <h1 class="text-2xl font-bold text-center mb-6">Text to Columns</h1>
-            <textarea id="dataInput" class="w-full p-4 mb-4 border border-gray-300 rounded" rows="10" placeholder="Paste your data for column C here..."></textarea>
+            <textarea id="dataInput" class="w-full p-2 mb-4 border border-gray-300 rounded" rows="5" placeholder="Paste your data for column C here..."></textarea>
             <div class="flex justify-center mb-6 flex-wrap">
                 <button id="sortButton" class="btn btn-sort mr-2 mb-2">Sort A-Z</button>
                 <button id="textToColumnsButton" class="btn btn-columns mr-2 mb-2">Text to Columns</button>
                 <button id="downloadButton" class="btn btn-download mb-2">Download</button>
             </div>
-            <div class="overflow-x-auto mt-6">
+            <div class="overflow-x-auto mt-12">
                 <table class="min-w-full bg-white border border-gray-300">
                     <thead>
                         <tr id="tableHeader">
@@ -118,8 +118,8 @@
                 </table>
             </div>
             <div class="flex justify-between mt-4">
-                <button id="showMoreButton" class="btn-show">Show 100+ Rows</button>
-                <button id="showAllButton" class="btn-show">Show All Rows</button>
+                <button id="showMoreButton" class="btn-show" disabled>Show 100+ Rows</button>
+                <button id="showAllButton" class="btn-show" disabled>Show All Rows</button>
             </div>
         </div>
     </div>
@@ -222,13 +222,17 @@
                 sortedDataTable.appendChild(row);
             });
             displayedData = data;
+            updateButtons();
         }
 
         function updateButtons() {
             const showMoreButton = document.getElementById('showMoreButton');
             const showAllButton = document.getElementById('showAllButton');
 
-            if (displayedData.length >= allData.length) {
+            if (displayedData.length === 0) {
+                showMoreButton.disabled = true;
+                showAllButton.disabled = true;
+            } else if (displayedData.length >= allData.length) {
                 showMoreButton.disabled = true;
                 showAllButton.disabled = true;
             } else {
