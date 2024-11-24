@@ -36,10 +36,10 @@
             filter: brightness(85%);
         }
         .btn {
-            width: 120px; /* Reduced width */
-            padding: 8px 16px; /* Reduced padding */
+            width: 100px; /* Reduced width */
+            padding: 6px 12px; /* Reduced padding */
             border-radius: 20px;
-            font-size: 14px; /* Reduced font size */
+            font-size: 12px; /* Reduced font size */
             font-weight: bold;
             transition: all 0.3s ease;
         }
@@ -51,7 +51,7 @@
             background-color: #0056b3; /* Bootstrap primary dark color */
         }
         .btn-columns {
-            background-color: #ef3143; /* Bootstrap danger color */
+            background-color: #dc3545; /* Bootstrap danger color */
             color: white;
         }
         .btn-columns:hover {
@@ -117,7 +117,7 @@
                     </tbody>
                 </table>
             </div>
-            <div class="flex justify-between mt-4">
+            <div class="flex justify-between mt-4" id="showButtons" style="display: none;">
                 <button id="showMoreButton" class="btn-show" disabled>Show 100+ Rows</button>
                 <button id="showAllButton" class="btn-show" disabled>Show All Rows</button>
             </div>
@@ -228,16 +228,20 @@
         function updateButtons() {
             const showMoreButton = document.getElementById('showMoreButton');
             const showAllButton = document.getElementById('showAllButton');
+            const showButtons = document.getElementById('showButtons');
 
             if (displayedData.length === 0) {
                 showMoreButton.disabled = true;
                 showAllButton.disabled = true;
+                showButtons.style.display = 'none';
             } else if (displayedData.length >= allData.length) {
                 showMoreButton.disabled = true;
                 showAllButton.disabled = true;
+                showButtons.style.display = 'block';
             } else {
                 showMoreButton.disabled = false;
                 showAllButton.disabled = false;
+                showButtons.style.display = 'block';
             }
         }
 
