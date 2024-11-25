@@ -37,11 +37,16 @@
         }
         .btn {
             width: 150px;
-            padding: 10px 20px;
+            padding: 5px 10px;
             border-radius: 25px;
-            font-size: 16px;
+            font-size: 12px;
             font-weight: bold;
             transition: all 0.3s ease;
+            border: 2px solid transparent;
+            white-space: nowrap;
+        }
+        .btn:hover {
+            transform: scale(1.1);
         }
         .btn-sort {
             background-color: #0046c1;
@@ -90,7 +95,7 @@
                 <button id="textToColumnsButton" class="btn btn-columns mr-2 mb-2">Text to Columns</button>
                 <button id="downloadButton" class="btn btn-download mb-2">Download</button>
             </div>
-            <h2 class="text-xl font-bold text-center mb-4">Sorted Data:</h2>
+            <h2 class="text-xl font-bold text-center mb-4" style="visibility: hidden;">Sorted Data:</h2>
             <div class="overflow-x-auto">
                 <table class="min-w-full bg-white border border-gray-300">
                     <thead>
